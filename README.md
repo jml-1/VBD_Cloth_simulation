@@ -40,6 +40,9 @@ D:\code\VBD\vbd_cloth_output
 
 The output files are `.vtp` PolyData files and can be opened directly in ParaView.
 
+The repository also includes `vbd_cloth_output.zip`, a packaged sample output
+that can be extracted and opened in ParaView.
+
 ## Notes
 
 - `.venv/`, `.warp_cache/`, and `vbd_cloth_output/` are generated locally and are not tracked.
