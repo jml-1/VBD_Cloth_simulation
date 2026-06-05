@@ -478,6 +478,21 @@ def write_vtp(
         f.write("</VTKFile>\n")
 
 
+def write_pvd(path: Path, frames: list[tuple[int, float, str]]):
+    """Write a ParaView time-series index for the saved VTP frames."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0"?>\n')
+        f.write('<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">\n')
+        f.write("  <Collection>\n")
+        for _frame, time, filename in frames:
+            f.write(f'    <DataSet timestep="{time:.7g}" group="" part="0" file="{filename}"/>\n')
+        f.write("  </Collection>\n")
+        f.write("</VTKFile>\n")
+
+
 def simulate(args):
     """运行完整仿真流程。
 
@@ -532,11 +547,13 @@ def simulate(args):
     inertia = cloth.vertex_mass / (sub_dt * sub_dt)
     max_step = args.max_step_scale * cloth.dx
     gravity = wp.vec3(0.0, args.gravity, 0.0)
+    saved_vtk_frames: list[tuple[int, float, str]] = []
 
     # VTP 输出从第 0 帧开始记录。
+    vtk_name = "frame_0000.vtp"
     zero_velocity = np.zeros_like(cloth.positions)
     write_vtp(
-        out_dir / "frame_0000.vtp",
+        out_dir / vtk_name,
         cloth.positions,
         zero_velocity,
         cloth.positions,
@@ -544,6 +561,7 @@ def simulate(args):
         cloth.fixed,
         cloth.colors,
     )
+    saved_vtk_frames.append((0, 0.0, vtk_name))
 
     for frame in range(1, args.frames + 1):
         for _substep in range(args.substeps):
@@ -589,9 +607,10 @@ def simulate(args):
             # 只有保存输出时才把 GPU 位置/速度拷回 CPU，减少不必要的数据传输。
             positions = x.numpy()
             velocities = v.numpy()
+            vtk_name = f"frame_{frame:04d}.vtp"
 
             write_vtp(
-                out_dir / f"frame_{frame:04d}.vtp",
+                out_dir / vtk_name,
                 positions,
                 velocities,
                 cloth.positions,
@@ -599,10 +618,14 @@ def simulate(args):
                 cloth.fixed,
                 cloth.colors,
             )
+            saved_vtk_frames.append((frame, frame * frame_dt, vtk_name))
 
             print(f"saved frame {frame:04d}")
 
+    pvd_path = out_dir / "cloth.pvd"
+    write_pvd(pvd_path, saved_vtk_frames)
     print(f"wrote ParaView VTP frames to: {out_dir.resolve()}")
+    print(f"wrote ParaView cloth time series: {pvd_path.resolve()}")
 
 
 def parse_args():
@@ -632,7 +655,7 @@ def parse_args():
     parser.add_argument("--gravity", type=float, default=-9.81, help="Y-axis gravity acceleration")
     parser.add_argument("--max-step-scale", type=float, default=0.6, help="limits one local VBD step to this multiple of grid spacing")
     parser.add_argument("--device", default="cuda:0", help="Warp device, e.g. cuda:0 or cpu")
-    parser.add_argument("--out-dir", default=str(SCRIPT_DIR / "vbd_cloth_output"), help="directory for ParaView VTP frames")
+    parser.add_argument("--out-dir", default=str(SCRIPT_DIR / "vbd_cloth_output_nocontact"), help="directory for ParaView VTP frames")
     parser.add_argument("--save-every", type=int, default=5, help="VTP save interval in frames")
     return parser.parse_args()
 

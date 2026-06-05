@@ -26,24 +26,33 @@ Default simulation:
 pdm run cloth
 ```
 
+Contact simulation:
+
+```powershell
+pdm run cloth_contact
+```
+
 Small smoke test:
 
 ```powershell
 pdm run python warp_vbd_cloth_no_contact_jml.py --resolution 16 --frames 5 --save-every 1
 ```
 
-The default output directory is:
+Typical output directories are:
 
 ```text
-D:\code\VBD\vbd_cloth_output
+D:\code\VBD\vbd_cloth_output_nocontact
+D:\code\VBD\vbd_cloth_output_with_contact
 ```
 
-The output files are `.vtp` PolyData files and can be opened directly in ParaView.
+The output files are `.vtp` PolyData files with `.pvd` time-series indexes.
+Open `cloth.pvd` or `combined_scene.pvd` directly in ParaView.
 
 The repository also includes `vbd_cloth_output.zip`, a packaged sample output
-that can be extracted and opened in ParaView.
+with both no-contact and contact results. Extract it and open the `.pvd` files
+in ParaView.
 
 ## Notes
 
-- `.venv/`, `.warp_cache/`, and `vbd_cloth_output/` are generated locally and are not tracked.
+- `.venv/`, `.warp_cache/`, and local output directories are generated locally and are not tracked.
 - The VBD solve uses 9-color vertex grouping so vertices of the same color can be updated in parallel on the GPU.

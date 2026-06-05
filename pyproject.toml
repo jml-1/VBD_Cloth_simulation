@@ -13,3 +13,4 @@ distribution = false
 
 [tool.pdm.scripts]
 cloth = "python warp_vbd_cloth_no_contact_jml.py"
+cloth_contact = "python warp_vbd_cloth_with_contact_jml.py"

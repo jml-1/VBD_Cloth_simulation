@@ -1,8 +1,9 @@
 .venv/
 .warp_cache/
 vbd_cloth_output/
+vbd_cloth_output_nocontact/
+vbd_cloth_output_with_contact/
 __pycache__/
 *.py[cod]
 *.pyo
 .pdm-python
-
