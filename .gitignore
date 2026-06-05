@@ -1,0 +1,8 @@
+.venv/
+.warp_cache/
+vbd_cloth_output/
+__pycache__/
+*.py[cod]
+*.pyo
+.pdm-python
+

@@ -1,0 +1,15 @@
+[project]
+name = "vbd-cloth"
+version = "0.1.0"
+description = "Warp VBD cloth simulation"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.3",
+    "warp-lang>=1.14.0",
+]
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+cloth = "python warp_vbd_cloth_no_contact_jml.py"
